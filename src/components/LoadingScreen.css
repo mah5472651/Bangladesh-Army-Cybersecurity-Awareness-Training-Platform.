@@ -1,0 +1,36 @@
+.loading-screen {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.loading-emblem {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  color: var(--army-green-950);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-glow 2s ease infinite;
+  overflow: hidden;
+}
+
+.loading-content p {
+  color: var(--olive-300);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}

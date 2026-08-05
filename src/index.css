@@ -1,0 +1,10 @@
+/* Base reset handled in theme.css — keep this file minimal for Vite entry */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
