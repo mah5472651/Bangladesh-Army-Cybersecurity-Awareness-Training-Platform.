@@ -48,7 +48,10 @@ async function audit(userId, username, action, detail, req) {
 }
 
 export async function loginHandler(req, res) {
-  const { username, password } = req.body || {};
+  const rawUsername = req.body?.username;
+  const rawPassword = req.body?.password;
+  const username = typeof rawUsername === "string" ? rawUsername.trim() : "";
+  const password = typeof rawPassword === "string" ? rawPassword.trim() : "";
 
   if (!username || !password) {
     return res.status(400).json({ error: "Username and password are required." });

@@ -63,7 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {
-    if (isExternalEmail(username)) {
+    const normalizedUsername = username.trim();
+    const normalizedPassword = password.trim();
+
+    if (!normalizedUsername || !normalizedPassword) {
+      return { ok: false, error: "Username and password are required." };
+    }
+
+    if (isExternalEmail(normalizedUsername)) {
       return {
         ok: false,
         error:
@@ -71,7 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    if (username.includes("@") && !username.toLowerCase().endsWith(".training.local")) {
+    if (
+      normalizedUsername.includes("@") &&
+      !normalizedUsername.toLowerCase().endsWith(".training.local")
+    ) {
       return {
         ok: false,
         error: "Only internal training accounts are accepted. Do not use real email addresses.",
@@ -79,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Prefer API when available; fall back to local demo auth
-    const apiResult = await apiLogin(username, password);
+    const apiResult = await apiLogin(normalizedUsername, normalizedPassword);
     if (apiResult.ok) {
       const authUser: AuthUser = {
         username: apiResult.data.user.username,
@@ -100,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Offline / local demo mode
     await new Promise((r) => setTimeout(r, 400));
-    const account = authenticateDemo(username, password);
+    const account = authenticateDemo(normalizedUsername, normalizedPassword);
     if (!account) {
       return {
         ok: false,

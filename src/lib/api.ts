@@ -124,7 +124,7 @@ export async function apiDownload(
 export async function apiLogin(username: string, password: string) {
   const result = await request<{ token: string; user: ApiUser; csrfToken?: string }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username: username.trim(), password: password.trim() }),
   });
   if (result.ok) {
     sessionStorage.setItem("bd_army_api_token", result.data.token);
