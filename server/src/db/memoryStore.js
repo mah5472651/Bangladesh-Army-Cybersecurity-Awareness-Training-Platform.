@@ -75,6 +75,10 @@ function createStore() {
         createdAt: new Date().toISOString(),
       },
     ],
+    /** @type {Map<string, { token: string, userId: string, expiresAt: Date }>} */
+    csrfTokens: new Map(),
+    /** @type {Map<string, object>} */
+    certificates: new Map(),
   };
 }
 
@@ -226,4 +230,54 @@ export function memListDepartments() {
     memory.users.map((u) => u.department || "Other").filter(Boolean)
   );
   return Array.from(set).sort();
+}
+
+/** CSRF token store (memory mode) */
+export function memStoreCsrf(token, userId) {
+  if (!token || !userId) return;
+  const expiresAt = new Date(Date.now() + 8 * 3600 * 1000);
+  memory.csrfTokens.set(token, { token, userId, expiresAt });
+  // Opportunistic cleanup of expired tokens
+  const now = Date.now();
+  for (const [k, v] of memory.csrfTokens) {
+    if (new Date(v.expiresAt).getTime() < now) memory.csrfTokens.delete(k);
+  }
+}
+
+export function memValidateCsrf(token, userId) {
+  if (!token || !userId) return false;
+  const entry = memory.csrfTokens.get(token);
+  if (!entry) return false;
+  if (entry.userId !== userId) return false;
+  if (new Date(entry.expiresAt).getTime() < Date.now()) {
+    memory.csrfTokens.delete(token);
+    return false;
+  }
+  return true;
+}
+
+/** Training certificates (memory mode) — no secrets */
+export function memSaveCertificate(record) {
+  if (!record?.certId) return null;
+  memory.certificates.set(record.certId, { ...record });
+  return record;
+}
+
+export function memGetCertificate(certId) {
+  if (!certId) return null;
+  return memory.certificates.get(certId) || null;
+}
+
+/** Reset all progress + sim events + badges for a user */
+export function memResetProgress(userId) {
+  if (!userId) return;
+  memory.progress.set(userId, new Map());
+  memory.badges.delete(userId);
+  memory.simEvents = memory.simEvents.filter((e) => e.userId !== userId);
+  // Remove certificates issued to this user
+  for (const [certId, rec] of memory.certificates) {
+    if (rec.userId === userId || rec.username === userId) {
+      memory.certificates.delete(certId);
+    }
+  }
 }
